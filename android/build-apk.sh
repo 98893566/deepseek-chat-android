@@ -12,7 +12,7 @@ D8_JAR="${D8_JAR:-/root/workspace/sdk/android-14/lib/d8.jar}"
 KEYSTORE="${KEYSTORE:-$HERE/keystore.jks}"
 KS_PASS="${KS_PASS:-dshchatdemo}"
 KS_ALIAS="${KS_ALIAS:-chatdemo}"
-VERSION="1.7.0"
+VERSION="1.8.0"
 
 for tool in aapt2 zipalign apksigner javac java; do
   command -v "$tool" >/dev/null || { echo "缺少工具：$tool" >&2; exit 1; }

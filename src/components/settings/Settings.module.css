@@ -179,6 +179,27 @@
   transform: translateX(20px);
 }
 
+.updateBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.updateMeta {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.updateNotes {
+  max-height: 42vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 13px;
+  line-height: 20px;
+}
+
 .avatarActions {
   display: flex;
   flex-wrap: wrap;

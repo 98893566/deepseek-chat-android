@@ -32,6 +32,7 @@ import {
   type ThemePreference,
 } from '../../services/settings.js'
 import { toAvatarDataUrl } from '../../services/avatars.js'
+import { checkForUpdate, currentVersion, UpdateError, type UpdateResult } from '../../services/update.js'
 import { useTranslate, type TranslationKey, type TranslationMessage } from '../../i18n/index.js'
 import { Button } from '../base/Button.js'
 import { Modal } from '../base/Modal.js'
@@ -110,6 +111,7 @@ const SettingsContent = () => {
               <AvatarSettingRow kind="ai" />
               <TtsVoiceSetting />
               <LocationSetting />
+              <UpdateSetting />
             </>
           ) : (
             <>
@@ -324,6 +326,90 @@ const ThinkingSetting = () => {
         </button>
       }
     />
+  )
+}
+
+const UpdateSetting = () => {
+  const t = useTranslate()
+  const [checking, setChecking] = useState(false)
+  const [result, setResult] = useState<UpdateResult | null>(null)
+
+  const check = async () => {
+    setChecking(true)
+    try {
+      const info = await checkForUpdate()
+      if (info.newer) {
+        setResult(info)
+      } else {
+        showToast({ key: 'updateIsLatest', params: { version: info.current } })
+      }
+    } catch (error) {
+      if (error instanceof UpdateError) {
+        if (error.kind === 'network') {
+          showToast({ key: 'updateNetworkError' })
+        } else if (error.kind === 'no-apk') {
+          showToast({ key: 'updateNoApk' })
+        } else {
+          showToast({ key: 'updateCheckFailed', params: { message: error.message } })
+        }
+      } else {
+        showToast({
+          key: 'updateCheckFailed',
+          params: { message: error instanceof Error ? error.message : String(error) },
+        })
+      }
+    } finally {
+      setChecking(false)
+    }
+  }
+
+  return (
+    <>
+      <SettingCell
+        label={t('settingsUpdate')}
+        description={t('settingsCurrentVersion', { version: currentVersion() })}
+        status={null}
+        action={
+          <Button
+            variant="outlined"
+            size="s"
+            disabled={checking}
+            onClick={() => void check()}
+          >
+            {checking ? t('updateChecking') : t('updateCheck')}
+          </Button>
+        }
+      />
+      {result ? (
+        <Modal
+          title={t('updateAvailableTitle', { version: result.tag })}
+          closable
+          onClose={() => setResult(null)}
+          footer={
+            <>
+              <Button variant="outlined" onClick={() => setResult(null)}>
+                {t('cancel')}
+              </Button>
+              <Button
+                onClick={() => {
+                  window.open(result.apkUrl, '_blank', 'noopener')
+                  setResult(null)
+                }}
+              >
+                {t('updateDownload')}
+              </Button>
+            </>
+          }
+        >
+          <div className={styles.updateBody}>
+            <div className={styles.updateMeta}>
+              {t('updateCurrentVersion', { version: result.current })}
+            </div>
+            <div className={styles.updateNotes}>{result.notes || t('updateNoNotes')}</div>
+          </div>
+        </Modal>
+      ) : null}
+    </>
   )
 }
 
