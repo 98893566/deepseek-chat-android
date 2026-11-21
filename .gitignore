@@ -1,0 +1,7 @@
+node_modules/
+dist/
+android/build/
+android/assets/
+*.jks
+*.apk
+.DS_Store

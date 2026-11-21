@@ -1,0 +1,27 @@
+DeepSeek Chat（非官方安卓客户端）
+==================================
+
+本项目基于 deepseek-ai/chat-demo 修改：
+
+- 原始项目：https://github.com/deepseek-ai/chat-demo
+- 原始许可证：MIT License，Copyright (c) 2026 DeepSeek
+- 原始许可证全文见本仓库 LICENSE
+
+主要修改：
+
+- 增加 Android WebView 外壳与内置的本地静态资源服务
+- 文件选择、麦克风权限、导出文件保存到系统下载目录的桥接
+- 自定义 API 地址（中转站）与鉴权头兼容
+- 上下文压缩、删除 AI 回复、帮我回一句、让剧情继续
+- 自动折叠思考过程、自定义用户 / AI 头像
+- 应用图标、APK 构建与签名脚本
+
+非官方声明：
+
+本项目与 DeepSeek（杭州深度求索人工智能基础技术研究有限公司）没有隶属、合作或背书关系。
+“DeepSeek”名称仅用于说明接口兼容性，不使用官方 Logo。
+
+第三方组件：
+
+前端依赖 React、KaTeX、Mermaid、Prism、fflate、idb、zustand 等，均遵循各自的开源许可证；
+构建产物中保留原始 LICENSE 文件。
