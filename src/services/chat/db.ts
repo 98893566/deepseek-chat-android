@@ -244,6 +244,49 @@ export const commitStaging = async (): Promise<SessionSummary[]> => {
   return summaries
 }
 
+/**
+ * 导入完成后把暂存内容追加到现有数据：同 ID 的会话和原件保留现有版本并跳过，
+ * 其余追加；不清空已有对话。用于「合并导入」。
+ */
+export const mergeStaging = async (): Promise<SessionSummary[]> => {
+  const imported: SessionSummary[] = []
+  const tx = (await getDB()).transaction(
+    ['sessions', 'sessionSummaries', 'files', 'sessionsStaging', 'filesStaging'],
+    'readwrite'
+  )
+  try {
+    const sessions = tx.objectStore('sessions')
+    const summaries = tx.objectStore('sessionSummaries')
+    const files = tx.objectStore('files')
+    const sessionIds = new Set(await sessions.getAllKeys())
+    const fileIds = new Set(await files.getAllKeys())
+
+    for (const file of await tx.objectStore('filesStaging').getAll()) {
+      if (!fileIds.has(file.id)) {
+        await files.put(file)
+        fileIds.add(file.id)
+      }
+    }
+    for (const session of await tx.objectStore('sessionsStaging').getAll()) {
+      if (sessionIds.has(session.id)) {
+        continue
+      }
+      await sessions.put(session)
+      const summary = storedSummary(session)
+      await summaries.put(summary)
+      imported.push(toSessionSummary(summary))
+      sessionIds.add(session.id)
+    }
+    await tx.objectStore('sessionsStaging').clear()
+    await tx.objectStore('filesStaging').clear()
+    await tx.done
+  } catch (error) {
+    abortTransaction(tx)
+    throw error
+  }
+  return imported
+}
+
 /** 本地存储失败不打断对话，只在控制台留痕 */
 export const reportStorageError = (action: string) => (error: unknown) => {
   // eslint-disable-next-line no-console

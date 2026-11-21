@@ -393,7 +393,10 @@ const waitForIdle = (sessionId?: string) =>
  * 替换历史对话：先写入暂存，成功后原子替换旧记录；写入为空即删除全部会话与附件。
  * 期间停止生成并禁止修改会话；失败时清除暂存，保留原有记录。
  */
-export const replaceHistory = async (write: () => Promise<void>): Promise<number> => {
+export const replaceHistory = async (
+  write: () => Promise<void>,
+  merge = false
+): Promise<number> => {
   if (get().importingHistory) {
     throw new Error('History replacement is already in progress')
   }
@@ -410,17 +413,28 @@ export const replaceHistory = async (write: () => Promise<void>): Promise<number
     await waitForIdle()
     await db.clearStaging()
     let summaries: SessionSummary[]
+    let importedCount = 0
     try {
       await write()
-      summaries = await db.commitStaging()
+      if (merge) {
+        const added = await db.mergeStaging()
+        importedCount = added.length
+        summaries = await db.loadSessionSummaries()
+      } else {
+        summaries = await db.commitStaging()
+        importedCount = summaries.length
+      }
     } catch (error) {
       await db.clearStaging().catch(db.reportStorageError('clear unfinished history replacement'))
       throw error
     }
     sessionAccess.clear()
     unsavedSessions.clear()
-    pendingFiles.clear()
-    clearAllDrafts()
+    // 合并导入保留现有会话的草稿与待保存附件；覆盖导入才清空。
+    if (!merge) {
+      pendingFiles.clear()
+      clearAllDrafts()
+    }
     set({
       ready: true,
       initError: false,
@@ -430,7 +444,7 @@ export const replaceHistory = async (write: () => Promise<void>): Promise<number
       sessionSaveErrors: {},
       activeId: null,
     })
-    return summaries.length
+    return importedCount
   } finally {
     set({ importingHistory: false })
     retrySaveSessions()

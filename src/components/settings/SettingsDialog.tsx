@@ -547,13 +547,31 @@ const ImportConfirm = ({
           <Button variant="outlined" size="m" autoFocus onClick={historyImport.cancel}>
             {t('cancel')}
           </Button>
-          <Button variant="dangerOutlined" size="m" onClick={() => void historyImport.confirm()}>
-            {t('historyImportConfirm')}
+          <Button
+            variant={historyImport.merge ? 'primary' : 'dangerOutlined'}
+            size="m"
+            onClick={() => void historyImport.confirm()}
+          >
+            {historyImport.merge
+              ? t('historyImportMergeAction')
+              : t('historyImportOverwriteAction')}
           </Button>
         </>
       }
     >
-      <div className={styles.importConfirmText}>{t('historyImportConfirmDescription')}</div>
+      <div className={styles.importConfirmText}>
+        {historyImport.merge
+          ? t('historyImportMergeDescription')
+          : t('historyImportOverwriteDescription')}
+      </div>
+      <label className={styles.importOption}>
+        <input
+          type="checkbox"
+          checked={historyImport.merge}
+          onChange={(event) => historyImport.setMerge(event.target.checked)}
+        />
+        <span>{t('historyImportKeepExisting')}</span>
+      </label>
     </Modal>
   )
 }
@@ -656,6 +674,7 @@ const SettingCell = ({
 const useHistoryImport = () => {
   const [file, setFile] = useState<File | null>(null)
   const [busy, setBusy] = useState(false)
+  const [merge, setMerge] = useState(true)
   const [status, setStatus] = useState<Status>(null)
   const importing = useRef(false)
 
@@ -668,17 +687,28 @@ const useHistoryImport = () => {
     setBusy(true)
     setStatus(null)
     try {
-      const count = await importHistory(file)
+      const count = await importHistory(file, merge)
       setStatus({ key: count === 1 ? 'historyImportedOne' : 'historyImported', params: { count } })
     } catch {
       setStatus({ key: 'historyImportFailed', error: true })
     } finally {
       importing.current = false
       setBusy(false)
+      // 下一次导入默认仍为合并，避免误覆盖
+      setMerge(true)
     }
   }
 
-  return { file, busy, status, select: setFile, cancel: () => setFile(null), confirm }
+  return {
+    file,
+    busy,
+    status,
+    merge,
+    setMerge,
+    select: setFile,
+    cancel: () => setFile(null),
+    confirm,
+  }
 }
 
 /** 导入 = 覆盖：用选中文件替换本地全部会话与附件。 */

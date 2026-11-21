@@ -164,8 +164,14 @@ export const zh = {
   historyImport: '导入历史对话',
   historyImportConfirm: '确认导入',
   historyImportConfirmTitle: '确认导入历史对话？',
+  historyImportMergeDescription: '导入的对话会追加到现有列表，本地原有的对话和附件会保留。',
+  historyImportOverwriteDescription:
+    '导入会覆盖当前所有本地对话和附件，覆盖后无法撤销；建议先导出备份。',
+  historyImportKeepExisting: '保留现有对话（合并导入）',
+  historyImportMergeAction: '合并导入',
+  historyImportOverwriteAction: '覆盖导入',
   historyImportConfirmDescription: '上传的历史对话会覆盖当前所有对话记录，是否确认导入？',
-  historyImportDescription: '导入历史对话会覆盖全部本地对话和附件，支持 DeepSeek 导出的 ZIP 文件。',
+  historyImportDescription: '支持 DeepSeek 导出的 ZIP；默认合并导入，保留现有对话。',
   historyImportedOne: '已导入 1 个对话',
   historyImported: '已导入 {count} 个对话',
   historyImportFailed:
