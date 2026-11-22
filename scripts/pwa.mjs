@@ -12,14 +12,14 @@ const walk = (dir) =>
   )
 
 const files = walk(dist)
-  .map((file) => `/${path.relative(dist, file).split(path.sep).join('/')}`)
-  .filter((file) => file !== '/sw.js')
+  .map((file) => path.relative(dist, file).split(path.sep).join('/'))
+  .filter((file) => file !== 'sw.js')
   .sort()
 
 const hash = createHash('sha1')
 for (const file of files) {
   hash.update(file)
-  hash.update(readFileSync(path.join(dist, file.slice(1))))
+  hash.update(readFileSync(path.join(dist, file)))
 }
 const version = hash.digest('hex').slice(0, 10)
 const template = readFileSync(path.join(root, 'pwa/sw.js'), 'utf8')

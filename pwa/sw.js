@@ -28,7 +28,9 @@ const navigate = (request) =>
   fetch(request).catch(() =>
     caches
       .match(new URL('index.html', self.registration.scope))
-      .then((response) => response || caches.match('/'))
+      .then(
+        (response) => response || caches.match(new URL('./', self.registration.scope))
+      )
   )
 
 self.addEventListener('fetch', (event) => {
