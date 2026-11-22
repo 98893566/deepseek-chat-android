@@ -1,9 +1,14 @@
-# DeepSeek Chat（非官方安卓客户端）
+# DeepSeek Chat（非官方客户端）
+
+**网页版（浏览器直接打开，无需安装）**：https://98893566.github.io/deepseek-chat-android/
+
 
 > **非官方项目**：基于 [deepseek-ai/chat-demo](https://github.com/deepseek-ai/chat-demo)（MIT）修改并打包成 Android App。
 > 与 DeepSeek 官方无隶属关系，也未获得官方背书；“DeepSeek”仅用于说明接口兼容性。
 
 把 DeepSeek 官方的静态聊天示例包装成手机应用：保留网页端全部能力，并增加手机端需要的设置和交互。
+
+网页版可以直接在浏览器里用，也可以“添加到主屏幕”当 PWA；安卓安装包见 Releases。
 
 ![主界面](docs/home.png)
 
